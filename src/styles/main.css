@@ -1,0 +1,17 @@
+:root {
+  --color-phosphor-green: #33ff33;
+  --color-phosphor-green-dim: #116611;
+  --color-orange-rust: #d97706;
+  --color-bg-dark: #0a0f0a;
+  --color-sepia: #78350f;
+  --font-terminal: 'Courier New', Courier, monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-phosphor-green);
+  font-family: var(--font-terminal);
+  overflow: hidden;
+}
