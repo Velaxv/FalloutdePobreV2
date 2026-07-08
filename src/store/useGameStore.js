@@ -52,12 +52,24 @@ export const useGameStore = create((set, get) => ({
   },
 
   modifyPlayerStat: (stat, val) => {
-    set((state) => ({
-      player: {
-        ...state.player,
-        [stat]: Math.max(0, Math.min(state.player.maxHealth || 100, state.player[stat] + val))
+    set((state) => {
+      let cap;
+      if (stat === 'health') {
+        cap = state.player.maxHealth || 100;
+      } else if (['stress', 'radiation', 'hunger', 'thirst'].includes(stat)) {
+        cap = 100;
       }
-    }));
+      
+      const newValue = state.player[stat] + val;
+      const cappedValue = cap !== undefined ? Math.min(cap, newValue) : newValue;
+      
+      return {
+        player: {
+          ...state.player,
+          [stat]: Math.max(0, cappedValue)
+        }
+      };
+    });
   },
 
   addItemToInventory: (item) => {
@@ -73,7 +85,7 @@ export const useGameStore = create((set, get) => ({
   },
 
   useItem: (itemId) => {
-    const { inventory, player } = get();
+    const { inventory } = get();
     const item = inventory.find(i => i.id === itemId);
     if (!item || item.quantity <= 0) return;
 
@@ -85,7 +97,8 @@ export const useGameStore = create((set, get) => ({
       let updatedPlayer = { ...state.player };
       if (item.effect) {
         Object.keys(item.effect).forEach(key => {
-          updatedPlayer[key] = Math.max(0, Math.min(100, updatedPlayer[key] + item.effect[key]));
+          const cap = key === 'health' ? (state.player.maxHealth || 100) : 100;
+          updatedPlayer[key] = Math.max(0, Math.min(cap, updatedPlayer[key] + item.effect[key]));
         });
       }
 
@@ -112,60 +125,71 @@ export const useGameStore = create((set, get) => ({
   executeCombatTurn: (playerAction) => {
     const { combatState, player, currentNodeId } = get();
     if (!combatState) return;
+
+    // Gating check to prevent multiple combat turns during node transition or after fight ends
+    if (combatState.enemyHealth <= 0 || player.health <= 0 || player.stress >= 100) {
+      return;
+    }
+
     const node = nodes[currentNodeId];
     const enemy = node.enemy;
 
     let enemyDamage = 0;
     let playerDamage = 0;
     let playerStressDamage = 0;
+    let nextAmmo = player.ammo;
+    let nextPlayerHealth = player.health;
+    let nextPlayerStress = player.stress;
+    let nextEnemyHealth = combatState.enemyHealth;
     let newLog = [];
 
-    // Lógica do jogador baseado na ação e postura
+    // Player action logic
     if (playerAction === 'attack') {
       if (combatState.playerStance === 'Melee') {
-        enemyDamage = 15; // Alto dano melee
+        enemyDamage = 15;
         newLog.push(`Você ataca ferozmente com a machete causando ${enemyDamage} de dano!`);
       } else if (combatState.playerStance === 'Ranged') {
-        if (player.ammo > 0) {
-          enemyDamage = 25; // Altíssimo dano ranged
+        if (nextAmmo > 0) {
+          enemyDamage = 25;
           newLog.push(`Você dispara seu trabucho causando ${enemyDamage} de dano!`);
-          set(state => ({ player: { ...state.player, ammo: state.player.ammo - 1 } }));
+          nextAmmo = nextAmmo - 1;
         } else {
           newLog.push(`Sem munição! Seu ataque falha.`);
         }
       } else {
-        enemyDamage = 5; // Dano fraco de arremessar pedras do abrigo
+        enemyDamage = 5;
         newLog.push(`Você arremessa detritos do abrigo causando ${enemyDamage} de dano.`);
       }
     } else if (playerAction === 'recover') {
       newLog.push(`Você descansa no abrigo, restaurando 15 de Vida e diminuindo 10 de Stress.`);
-      set(state => ({
-        player: {
-          ...state.player,
-          health: Math.min(state.player.maxHealth, state.player.health + 15),
-          stress: Math.max(0, state.player.stress - 10)
-        }
-      }));
+      nextPlayerHealth = Math.min(player.maxHealth || 100, nextPlayerHealth + 15);
+      nextPlayerStress = Math.max(0, nextPlayerStress - 10);
     }
 
-    const nextEnemyHealth = Math.max(0, combatState.enemyHealth - enemyDamage);
+    nextEnemyHealth = Math.max(0, nextEnemyHealth - enemyDamage);
 
     if (nextEnemyHealth <= 0) {
       newLog.push(`O ${enemy.name} foi derrotado!`);
-      set({
+      set((state) => ({
+        player: {
+          ...state.player,
+          ammo: nextAmmo,
+          health: nextPlayerHealth,
+          stress: nextPlayerStress
+        },
         combatState: {
-          ...combatState,
+          ...state.combatState,
           enemyHealth: 0,
-          log: [...combatState.log, ...newLog]
+          log: [...state.combatState.log, ...newLog]
         }
-      });
+      }));
       setTimeout(() => get().changeNode(node.onWinNodeId), 1500);
       return;
     }
 
-    // Turno do inimigo
+    // Enemy turn
     if (combatState.playerStance === 'Melee') {
-      playerDamage = 12; // Inimigo pune melee
+      playerDamage = 12;
       playerStressDamage = 5;
       newLog.push(`O ${enemy.name} revida com um golpe forte de cano, causando ${playerDamage} de dano.`);
     } else if (combatState.playerStance === 'Ranged') {
@@ -173,18 +197,18 @@ export const useGameStore = create((set, get) => ({
       playerStressDamage = 8;
       newLog.push(`O ${enemy.name} arremessa pedras e grita ameaças, causando ${playerDamage} de dano e ${playerStressDamage} de stress.`);
     } else {
-      // Abrigo protege muito
       playerDamage = 3;
       playerStressDamage = 2;
       newLog.push(`Abrigado nos escombros, você desvia da maioria dos ataques do ${enemy.name}. Sofre apenas ${playerDamage} de dano.`);
     }
 
-    const nextPlayerHealth = Math.max(0, player.health - playerDamage);
-    const nextPlayerStress = Math.min(100, player.stress + playerStressDamage);
+    nextPlayerHealth = Math.max(0, nextPlayerHealth - playerDamage);
+    nextPlayerStress = Math.min(100, nextPlayerStress + playerStressDamage);
 
     set((state) => ({
       player: {
         ...state.player,
+        ammo: nextAmmo,
         health: nextPlayerHealth,
         stress: nextPlayerStress
       },
