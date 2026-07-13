@@ -36,7 +36,16 @@ const resetState = () => {
       derrotouCapanga: false,
       passouPedagio: false,
       reativouOrelhaoEsplanada: false,
+      conheceuDonaLinha: false,
+      trocouSucataLinha: false,
+      ouviuFofocaNilo: false,
+      conheceuIrmaOcupada: false,
+      falouComTom: false,
+      tomOfendido: false,
+      ouviuFitaNiloExtra: false,
+      conheceuGuto: false,
     },
+    introComplete: true,
     currentNodeId: 'inicio_congresso',
     combatState: null,
   });
@@ -50,6 +59,13 @@ describe('useGameStore', () => {
   it('deve inicializar com o nó de introdução', () => {
     const state = useGameStore.getState();
     expect(state.currentNodeId).toBe('inicio_congresso');
+  });
+
+  it('completeIntro deve marcar a intro CRT como concluída', () => {
+    useGameStore.setState({ introComplete: false });
+    expect(useGameStore.getState().introComplete).toBe(false);
+    useGameStore.getState().completeIntro();
+    expect(useGameStore.getState().introComplete).toBe(true);
   });
 
   it('deve mudar de nó e aumentar fome/sede levemente', () => {

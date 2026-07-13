@@ -101,8 +101,13 @@ export const nodes = {
   voz_nilo_1: {
     id: 'voz_nilo_1',
     type: 'narrative',
+    speaker: 'Seu Nilo (gravação)',
     text: '"Aprendiz. Se está ouvindo, eu não voltei." Um silêncio de fita. "Siga o protocolo: reative a orla, não negocie com quem cobra swing na Esplanada, e se achar meu corpo… não perca tempo rezando. Reze no cobre." A gravação engasga. "Eles patrulham. Há uma machete no orelhão de trás. A Central do Planalto ainda importa. Eu—" Estática. A linha morre como quem fecha a porta com o pé.',
     choices: [
+      {
+        text: 'Tentar puxar mais um trecho da fita (-0 ficha, se a linha aguentar)',
+        nextNodeId: 'nilo_fita_extra',
+      },
       {
         text: 'Procurar o orelhão de trás (machete)',
         nextNodeId: 'orelhao_machete',
@@ -115,6 +120,30 @@ export const nodes = {
       {
         text: 'Ignorar o protocolo e ir ao cemitério de Opalas',
         nextNodeId: 'cemiterio_opalas',
+      },
+    ],
+  },
+
+  nilo_fita_extra: {
+    id: 'nilo_fita_extra',
+    type: 'narrative',
+    speaker: 'Seu Nilo (gravação)',
+    text: 'O relé cospe um apêndice rachado: "Se Dona Linha ainda monta barraca na orla… ela te vende ficha cara e verdade barata. Não confie em Tom do Reverb — ele cobra swing até do silêncio. E Aprendiz: se a estática cantar seu nome, não responda de primeira. Pode ser a Igreja. Pode ser eu. Pode ser pior." Clique. Cheiro de ozônio. Saudade com imposto.',
+    choices: [
+      {
+        text: 'Procurar a machete',
+        nextNodeId: 'orelhao_machete',
+        effects: { flags: { ouviuFitaNiloExtra: true }, stress: 3 },
+      },
+      {
+        text: 'Ir atrás do corpo de Nilo',
+        nextNodeId: 'pista_corpo',
+        effects: { flags: { ouviuFitaNiloExtra: true }, stress: 6 },
+      },
+      {
+        text: 'Buscar Dona Linha na orla',
+        nextNodeId: 'linha_encontro',
+        effects: { flags: { ouviuFitaNiloExtra: true } },
       },
     ],
   },
@@ -198,7 +227,7 @@ export const nodes = {
   encruzilhada_orla: {
     id: 'encruzilhada_orla',
     type: 'narrative',
-    text: 'Três caminhos na orla do Congresso: o cemitério de carcaças (Opalas e ônibus), a fileira de orelhões mudos como dentes, e a avenida rachada que sobe para a Esplanada — onde a Bossa Nova cobra pedágio em swing e sangue.',
+    text: 'A orla do Congresso se abre em caminhos: cemitério de Opalas, fileira de orelhões, avenida do pedágio… e uma lona esburacada onde alguém ferve água em lata de tinta. Cheiro de café fraco e cobre. Gente ainda teima em viver aqui.',
     choices: [
       {
         text: 'Cemitério de Opalas (sucata, risco, recompensa)',
@@ -207,6 +236,10 @@ export const nodes = {
       {
         text: 'Fileira de orelhões (fichas, lore, estática)',
         nextNodeId: 'fileira_orelhoes',
+      },
+      {
+        text: 'Parar na lona da catadora (Dona Linha)',
+        nextNodeId: 'linha_encontro',
       },
       {
         text: 'Subir para a Esplanada (pedágio da Bossa Nova)',
@@ -266,13 +299,19 @@ export const nodes = {
   opala_emboscada: {
     id: 'opala_emboscada',
     type: 'narrative',
-    text: 'Não é milícia. É um carcará humano — sucateiro magro com cano de PVC e sorriso de quem já vendeu a própria sombra. "Metade da sucata ou eu grito pra Bossa Nova que tem Telefonista na orla."',
+    speaker: 'Guto, o Carcará',
+    text: 'Não é milícia. É Guto — sucateiro magro, cano de PVC, sorriso de quem já vendeu a própria sombra duas vezes. "Eita, fardinha de voz. Metade da sucata ou eu grito pra Bossa Nova que tem Telefonista na orla. Não é pessoal, é… política de trânsito."',
     choices: [
+      {
+        text: 'Conversar: "Quem te paga pra assustar?"',
+        nextNodeId: 'guto_dialogo',
+        effects: { flags: { conheceuGuto: true } },
+      },
       {
         text: 'Pagar a "taxa" (-3 sucata, paz suja)',
         nextNodeId: 'opala_saque_ok',
         requirements: { scrap: 3 },
-        effects: { scrap: -3, stress: 2 },
+        effects: { scrap: -3, stress: 2, flags: { conheceuGuto: true } },
       },
       {
         text: 'Recusar e encarar (estresse, mas mantém o saque)',
@@ -282,13 +321,44 @@ export const nodes = {
           stress: 10,
           health: -5,
           addItems: ['guarana_jesus'],
-          flags: { saqueouOpala: true },
+          flags: { saqueouOpala: true, conheceuGuto: true },
         },
       },
       {
         text: 'Fugir de mãos abanando',
         nextNodeId: 'encruzilhada_orla',
-        effects: { stress: 5, thirst: 8 },
+        effects: { stress: 5, thirst: 8, flags: { conheceuGuto: true } },
+      },
+    ],
+  },
+
+  guto_dialogo: {
+    id: 'guto_dialogo',
+    type: 'narrative',
+    speaker: 'Guto, o Carcará',
+    text: 'Guto cospe no chão (o chão não reclama). "Ninguém me paga. A Bossa Nova só escuta barulho. Eu vendo o barulho. Seu Nilo… ele me dava ficha pra eu calar a boca. Homem justo. Morto, né? Justiça no Brasil sempre vem póstuma." Ele abana o cano. "Então: taxa, fuga, ou a gente finge que foi vento?"',
+    choices: [
+      {
+        text: '"Nilo te pagava. Me dá desconto de aprendiz." (-1 sucata)',
+        nextNodeId: 'opala_saque_ok',
+        requirements: { scrap: 1 },
+        effects: {
+          scrap: -1,
+          stress: -2,
+          addItems: ['guarana_jesus'],
+          flags: { saqueouOpala: true },
+        },
+      },
+      {
+        text: 'Pagar taxa cheia (-3 sucata)',
+        nextNodeId: 'opala_saque_ok',
+        requirements: { scrap: 3 },
+        effects: { scrap: -3, flags: { saqueouOpala: true } },
+      },
+      {
+        text: 'Encerrar papo na porrada de olhar (sair com pouco)',
+        nextNodeId: 'opala_saque_ok',
+        effects: { scrap: 1, stress: 6, flags: { saqueouOpala: true } },
       },
     ],
   },
@@ -296,8 +366,12 @@ export const nodes = {
   fileira_orelhoes: {
     id: 'fileira_orelhoes',
     type: 'narrative',
-    text: 'Cinco cabines. Três mortas. Uma cospe só ocupado eterno — a Igreja do Sinal Ocupado deixou uma garrafa de água e um dente como oferenda. A quinta pisca o LED como olho de sonâmbulo.',
+    text: 'Cinco cabines. Três mortas. Uma cospe ocupado eterno — e uma mulher de manto feito de capas de lista telefônica murmura junto. A Igreja do Sinal Ocupado deixou água e um dente. A quinta cabine pisca o LED como olho de sonâmbulo.',
     choices: [
+      {
+        text: 'Falar com a mulher do manto (Irmã Ocupada)',
+        nextNodeId: 'irma_encontro',
+      },
       {
         text: 'Rezar do jeito errado: pegar a água da oferenda',
         nextNodeId: 'fileira_resultado',
@@ -370,8 +444,14 @@ export const nodes = {
   aproximar_pedagio: {
     id: 'aproximar_pedagio',
     type: 'narrative',
-    text: 'Um Capanga da Bossa Nova bloqueia a avenida com um banquinho de praia e um cano. Jaqueta desbotada, óculos escuros no crepúsculo, rádio portátil tossindo soft-jazz radioativo. "Pedágio da Esplanada. Cinco fichas… ou a gente afina sua garganta. Telefonista paga com juros, viu."',
+    speaker: 'Tom do Reverb',
+    text: 'O pedágio tem nome: Tom do Reverb. Banquinho de praia, cano, jaqueta desbotada, óculos escuros no crepúsculo. Rádio portátil tossindo soft-jazz radioativo. "Pedágio da Esplanada. Cinco fichas… ou a gente afina sua garganta. Telefonista paga com juros, viu. Eu sou o Tom. O reverb é cortesia."',
     choices: [
+      {
+        text: 'Conversar com Tom (antes de pagar ou brigar)',
+        nextNodeId: 'tom_hub',
+        effects: { flags: { falouComTom: true } },
+      },
       {
         text: 'Pagar as 5 fichas (evitar luta)',
         nextNodeId: 'pedagio_pago',
@@ -402,7 +482,7 @@ export const nodes = {
       {
         text: 'Recusar — preparar para combate',
         nextNodeId: 'combate_milicia',
-        effects: { stress: 5 },
+        effects: { stress: 5, flags: { tomOfendido: true } },
       },
       {
         text: 'Recuar para a orla (juntar recursos)',
@@ -414,10 +494,15 @@ export const nodes = {
   pedagio_pago: {
     id: 'pedagio_pago',
     type: 'narrative',
-    text: 'As fichas somem na mão dele mais rápido que esperança em ano eleitoral. "Civilizado. Pode passar, Operador. E diga ao fantasma do Nilo que a conta de voz dele… continua em aberto." Ele ri. O rádio muda de faixa sozinho.',
+    speaker: 'Tom do Reverb',
+    text: 'As fichas somem na mão de Tom mais rápido que esperança em ano eleitoral. "Civilizado. Pode passar, Operador. E diga ao fantasma do Nilo que a conta de voz dele… continua em aberto." Ele ri. O rádio muda de faixa sozinho — como se concordasse.',
     choices: [
       {
-        text: 'Atravessar a Esplanada',
+        text: 'Perguntar o que Nilo devia a ele',
+        nextNodeId: 'tom_divida_nilo',
+      },
+      {
+        text: 'Atravessar a Esplanada em silêncio',
         nextNodeId: 'esplanada_aberta',
       },
     ],
@@ -426,8 +511,13 @@ export const nodes = {
   pedagio_barganha: {
     id: 'pedagio_barganha',
     type: 'narrative',
-    text: 'Ele sopesa o suborno como crítico de arte de boteco. "Tá sujo, mas tem swing." O banquinho de praia é arrastado de lado. "Hoje você comprou civilidade. Amanhã o preço sobe com a maré."',
+    speaker: 'Tom do Reverb',
+    text: 'Tom sopesa o suborno como crítico de arte de boteco. "Tá sujo, mas tem swing." O banquinho de praia é arrastado de lado. "Hoje você comprou civilidade. Amanhã o preço sobe com a maré. A Bossa Nova não faz promoção de aniversário."',
     choices: [
+      {
+        text: '"Você tem medo da Central do Planalto?"',
+        nextNodeId: 'tom_central',
+      },
       {
         text: 'Seguir em frente',
         nextNodeId: 'esplanada_aberta',
@@ -438,9 +528,9 @@ export const nodes = {
   combate_milicia: {
     id: 'combate_milicia',
     type: 'combat',
-    text: '"Sem ficha, sem swing, sem passagem!" O Capanga da Bossa Nova ergue o cano. A Esplanada vai decidir em posturas — não em discurso.',
+    text: '"Sem ficha, sem swing, sem passagem!" Tom do Reverb ergue o cano. O rádio grita um solo torto. A Esplanada vai decidir em posturas — não em discurso.',
     enemy: {
-      name: 'Capanga da Bossa Nova',
+      name: 'Tom do Reverb',
       health: 40,
       maxHealth: 40,
       stressAttack: 10,
@@ -453,7 +543,8 @@ export const nodes = {
   vitoria_milicia: {
     id: 'vitoria_milicia',
     type: 'narrative',
-    text: 'O capanga tropeça para trás, jaqueta rasgada, orgulho mais rasgado ainda. Foge deixando três fichas e o rádio cuspendo um acorde torto. "A Bossa Nova não esquece, Telefonista!" A avenida, por enquanto, é sua.',
+    speaker: 'Tom do Reverb',
+    text: 'Tom tropeça para trás, jaqueta rasgada, orgulho mais rasgado ainda. "Você… tem o mesmo vício do Nilo. Achar que linha resolve tudo." Foge deixando três fichas e o rádio cuspendo um acorde torto. "A Bossa Nova não esquece, Aprendiz!"',
     choices: [
       {
         text: 'Pegar as fichas e avançar',
@@ -470,17 +561,26 @@ export const nodes = {
   esplanada_aberta: {
     id: 'esplanada_aberta',
     type: 'narrative',
-    text: 'A Esplanada das Ruínas se abre: pedra quente, ossos de postes, água verde em poças como olhos. No meio do eixo, um orelhão intacto demais para ser acaso — relé de orla que Nilo marcou nos mapas mentais. Mais adiante, um mirante rachado observa a cidade-pântano.',
+    text: 'A Esplanada das Ruínas se abre: pedra quente, ossos de postes, água verde em poças como olhos. No meio do eixo, um orelhão intacto demais para ser acaso — relé de orla que Nilo marcou nos mapas mentais. Mais adiante, um mirante rachado. Se você humilhou Tom, o vento às vezes carrega um rádio magoado.',
     choices: [
       {
         text: 'Reativar o orelhão da Esplanada (-1 Ficha)',
         nextNodeId: 'reativar_orelhao',
-        requirements: { currency: 1 },
+        requirements: { currency: 1, notFlag: 'reativouOrelhaoEsplanada' },
         effects: { currency: -1 },
       },
       {
-        text: 'Subir ao mirante primeiro',
+        text: 'Investigar um rádio abandonado (Tom?)',
+        nextNodeId: 'tom_eco_esplanada',
+        requirements: { flag: 'derrotouCapanga' },
+      },
+      {
+        text: 'Subir ao mirante',
         nextNodeId: 'mirante',
+      },
+      {
+        text: 'Descer de volta à orla',
+        nextNodeId: 'encruzilhada_orla',
       },
     ],
   },
@@ -488,12 +588,51 @@ export const nodes = {
   reativar_orelhao: {
     id: 'reativar_orelhao',
     type: 'narrative',
-    text: 'Você executa o protocolo: ficha, manivela de intenção, três toques no gancho. A cabine estremece. Luz. Depois a voz de Nilo — mais fraca, como quem fala debaixo d\'água: "Orla online. Bom trabalho, Aprendiz. Próximo nó: Central do Planalto. Se a estática engolir esta fita… continue sem mim." A linha estabiliza num zumbido vivo. Pela primeira vez em muito tempo, Brasília tem um ponto que responde.',
+    speaker: 'Seu Nilo (gravação)',
+    text: 'Você executa o protocolo: ficha, manivela de intenção, três toques no gancho. A cabine estremece. Luz. A voz de Nilo — mais fraca, como quem fala debaixo d\'água: "Orla online. Bom trabalho, Aprendiz. Próximo nó: Central do Planalto. Se a estática engolir esta fita… continue sem mim. E se cruzar a Linha… diga que a conta do café ficou pra próxima vida." A linha estabiliza num zumbido vivo. Brasília tem um ponto que responde.',
     choices: [
+      {
+        text: 'Perguntar à linha se Nilo ainda "ouve"',
+        nextNodeId: 'nilo_pos_rele',
+        effects: { flags: { reativouOrelhaoEsplanada: true }, stress: -5 },
+      },
       {
         text: 'Ir ao mirante',
         nextNodeId: 'mirante',
         effects: { flags: { reativouOrelhaoEsplanada: true }, stress: -8 },
+      },
+    ],
+  },
+
+  nilo_pos_rele: {
+    id: 'nilo_pos_rele',
+    type: 'narrative',
+    speaker: 'Seu Nilo (eco da malha)',
+    text: 'Só estática… depois um sopro: "Eu não ouço. Eu repito. É diferente. Aprendiz, não faça da minha voz um deus. Faça dela um fio. Fios se emendar. Deuses só cobram pedágio." A cabine esfria. O ofício, não.',
+    choices: [
+      {
+        text: 'Aceitar a lição e ir ao mirante',
+        nextNodeId: 'mirante',
+        effects: { stress: -4 },
+      },
+    ],
+  },
+
+  tom_eco_esplanada: {
+    id: 'tom_eco_esplanada',
+    type: 'narrative',
+    speaker: 'Rádio de Tom (abandonado)',
+    text: 'O rádio que Tom largou ainda cospe jazz com chiado. De repente, a voz dele — gravada ou ao vivo, difícil saber: "Aprendiz… se reativou a orla, a chefia vai saber. Eu não volto fraco. Eu volto com banda." Estática. Um último acorde. Ameaça com arranjo.',
+    choices: [
+      {
+        text: 'Desligar o rádio com o pé',
+        nextNodeId: 'esplanada_aberta',
+        effects: { stress: 4 },
+      },
+      {
+        text: 'Deixar tocando — informação também é arma',
+        nextNodeId: 'esplanada_aberta',
+        effects: { stress: 2 },
       },
     ],
   },
@@ -532,5 +671,350 @@ export const nodes = {
     type: 'narrative',
     text: 'Seu corpo cede na terra devastada. O rádio no cinto cospe estática — e, por um segundo cruel, a voz de Nilo: "Aprendiz… a linha…" Depois, nada. Em 2150, até o silêncio tem fila de espera. Fim de jogo.',
     choices: [],
+  },
+
+  // ─── NPC: DONA LINHA ───────────────────────────────────────
+  linha_encontro: {
+    id: 'linha_encontro',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: 'Debaixo da lona, uma mulher de cabelos brancos trançados com fio de telefone ferve lata de tinta. Olhos de quem já viu o Dilúvio subir e descer. "Senta, Aprendiz. Cheiro de central em você. Nilo te mandou… ou a fome?"',
+    choices: [
+      {
+        text: '"Nilo me ensinou. Ele morreu."',
+        nextNodeId: 'linha_hub',
+        effects: { flags: { conheceuDonaLinha: true }, stress: 2 },
+      },
+      {
+        text: '"Só quero comércio. Ficha por sucata."',
+        nextNodeId: 'linha_hub',
+        effects: { flags: { conheceuDonaLinha: true } },
+      },
+      {
+        text: 'Desculpar-se e voltar à encruzilhada',
+        nextNodeId: 'encruzilhada_orla',
+      },
+    ],
+  },
+
+  linha_hub: {
+    id: 'linha_hub',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: 'Dona Linha mexe a panela. "Eu troco, eu fofoco, eu não rezo. Escolhe o serviço. Só não me peça milagre — milagre em Brasília virou pedágio."',
+    choices: [
+      {
+        text: 'Perguntar sobre Seu Nilo',
+        nextNodeId: 'linha_sobre_nilo',
+      },
+      {
+        text: 'Perguntar sobre a Bossa Nova / Tom',
+        nextNodeId: 'linha_sobre_bossa',
+      },
+      {
+        text: 'Trocar 3 sucatas por 1 ficha',
+        nextNodeId: 'linha_troca_ok',
+        requirements: { scrap: 3, notFlag: 'trocouSucataLinha' },
+        effects: {
+          scrap: -3,
+          currency: 1,
+          flags: { trocouSucataLinha: true },
+        },
+      },
+      {
+        text: 'Trocar charque por 1 ficha',
+        nextNodeId: 'linha_troca_ok',
+        requirements: { item: 'charque_seco', notFlag: 'trocouSucataLinha' },
+        effects: {
+          removeItem: 'charque_seco',
+          currency: 1,
+          flags: { trocouSucataLinha: true },
+        },
+      },
+      {
+        text: '"Obrigado, Dona Linha." (sair)',
+        nextNodeId: 'encruzilhada_orla',
+        effects: { stress: -3 },
+      },
+    ],
+  },
+
+  linha_sobre_nilo: {
+    id: 'linha_sobre_nilo',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: '"Nilo era teimoso igual fio desencapado. Vinha aqui, tomava café de lata, falava que a Central do Planalto ainda respirava. Eu dizia: homem, respira quem tem pulmão. Ele ria. Semana passada… o rir parou. Achei ele perto da água. Não mexi no corpo. Telefonista tem direito a pose final." Ela te olha. "Você é a pose que anda."',
+    choices: [
+      {
+        text: 'Agradecer a honestidade (voltar ao menu dela)',
+        nextNodeId: 'linha_hub',
+        effects: { flags: { ouviuFofocaNilo: true }, stress: 4 },
+      },
+      {
+        text: 'Perguntar se ela sabe do corpo ainda lá',
+        nextNodeId: 'linha_corpo',
+        effects: { flags: { ouviuFofocaNilo: true } },
+      },
+    ],
+  },
+
+  linha_corpo: {
+    id: 'linha_corpo',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: '"Tava. Pode ter sido a maré, pode ter sido a Bossa Nova fazendo limpeza estética. Se for achar, leva fita. Morto de Nilo sempre deixa recado — ele era burocrático até na hora de ir."',
+    choices: [
+      {
+        text: 'Voltar ao que ela oferece',
+        nextNodeId: 'linha_hub',
+      },
+      {
+        text: 'Ir procurar o corpo agora',
+        nextNodeId: 'pista_corpo',
+        effects: { stress: 3 },
+      },
+    ],
+  },
+
+  linha_sobre_bossa: {
+    id: 'linha_sobre_bossa',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: '"Tom do Reverb acha que é DJ de apocalipse. Cobra cinco fichas e um discurso. Se não tiver ficha, leva Guaraná — ele é vaidoso. Se não tiver nada, reza ou corre. A milícia odeia Telefonista porque voz grátis ameaça o pedágio do boato. Simples. Feio. Brasileiro."',
+    choices: [
+      {
+        text: 'Anotar mentalmente e voltar',
+        nextNodeId: 'linha_hub',
+        effects: { stress: -2 },
+      },
+      {
+        text: 'Ir direto ao pedágio',
+        nextNodeId: 'aproximar_pedagio',
+      },
+    ],
+  },
+
+  linha_troca_ok: {
+    id: 'linha_troca_ok',
+    type: 'narrative',
+    speaker: 'Dona Linha',
+    text: 'Ela conta a ficha duas vezes, como se o Dilúvio pudesse ter comido o número. "Negócio fechado. Não volta pedindo fiado — fiado morreu em 2044 junto com o cerrado." Um quase-sorriso. "Quase."',
+    choices: [
+      {
+        text: 'Continuar conversando',
+        nextNodeId: 'linha_hub',
+      },
+      {
+        text: 'Partir',
+        nextNodeId: 'encruzilhada_orla',
+      },
+    ],
+  },
+
+  // ─── NPC: IRMÃ OCUPADA ─────────────────────────────────────
+  irma_encontro: {
+    id: 'irma_encontro',
+    type: 'narrative',
+    speaker: 'Irmã Ocupada',
+    text: 'A mulher ergue o rosto. O manto de capas amarelas farfalha. "Shhh. A linha está ocupada com Deus." No fundo, o orelhão canta o ocupado eterno — bip bip bip, litania. "Você carrega cheiro de mentor morto. Quer absolvição ou horário de funcionamento?"',
+    choices: [
+      {
+        text: '"Quero entender a estática."',
+        nextNodeId: 'irma_hub',
+        effects: { flags: { conheceuIrmaOcupada: true } },
+      },
+      {
+        text: '"Quero só passar. Sem sermão."',
+        nextNodeId: 'fileira_resultado',
+        effects: { flags: { conheceuIrmaOcupada: true }, stress: 2 },
+      },
+      {
+        text: 'Roubar a oferenda na cara dela',
+        nextNodeId: 'irma_ofensa',
+        effects: {
+          addItems: ['agua_garrafa'],
+          stress: 8,
+          flags: { roubouOferenda: true, conheceuIrmaOcupada: true },
+        },
+      },
+    ],
+  },
+
+  irma_hub: {
+    id: 'irma_hub',
+    type: 'narrative',
+    speaker: 'Irmã Ocupada',
+    text: '"A Igreja do Sinal Ocupado acredita: enquanto houver bip, o país não morreu de vez. Silêncio total é o inferno. Nilo… ele zombava da gente. Mas deixava ficha na cabine. Ateu generoso." Ela aponta o LED. "Aquela pisca pra quem ainda discou o nome dele."',
+    choices: [
+      {
+        text: 'Perguntar se a estática é Nilo',
+        nextNodeId: 'irma_estatica',
+      },
+      {
+        text: 'Pedir bênção barata (-1 stress, +1 radiação simbólica?)',
+        nextNodeId: 'irma_bencao',
+        effects: { stress: -6, radiation: 2 },
+      },
+      {
+        text: 'Despedir-se e explorar as cabines',
+        nextNodeId: 'fileira_resultado',
+      },
+    ],
+  },
+
+  irma_estatica: {
+    id: 'irma_estatica',
+    type: 'narrative',
+    speaker: 'Irmã Ocupada',
+    text: '"Às vezes é Nilo. Às vezes é a malha soluçando. Às vezes é você ouvindo o que precisa ouvir pra não largar o ofício. Fé de Telefonista e fé de Igreja: as duas usam ficha." Ela ri baixo. "Diferença? Nós admitimos o milagre. Vocês chamam de protocolo."',
+    choices: [
+      {
+        text: 'Voltar ao que ela oferece',
+        nextNodeId: 'irma_hub',
+        effects: { stress: -2 },
+      },
+      {
+        text: 'Gastar ficha na cabine que pisca',
+        nextNodeId: 'orelhao_esplanada_eco',
+        requirements: { currency: 1 },
+        effects: { currency: -1 },
+      },
+    ],
+  },
+
+  irma_bencao: {
+    id: 'irma_bencao',
+    type: 'narrative',
+    speaker: 'Irmã Ocupada',
+    text: 'Ela traça um círculo no ar com o dedo sujo — como discar sem disco. "Que sua linha não caia. Que seu stress encontre ocupado. Que o Dilúvio Verde te recuse por um dia." O peito alivia. A pele formiga. Bênção com efeito colateral: clássico.',
+    choices: [
+      {
+        text: 'Amém analógico — sair',
+        nextNodeId: 'fileira_resultado',
+      },
+      {
+        text: 'Ficar mais um pouco',
+        nextNodeId: 'irma_hub',
+      },
+    ],
+  },
+
+  irma_ofensa: {
+    id: 'irma_ofensa',
+    type: 'narrative',
+    speaker: 'Irmã Ocupada',
+    text: '"Ladrão de oferenda." A voz dela não sobe — desce. "Leva a água. Leva a sede que vem depois. A linha vai lembrar seu rosto no ocupado." Você sente o olhar da cabine. Paranoia de plástico. Funciona.',
+    choices: [
+      {
+        text: 'Sair com a garrafa e a vergonha',
+        nextNodeId: 'fileira_resultado',
+        effects: { stress: 5 },
+      },
+    ],
+  },
+
+  // ─── NPC: TOM DO REVERB (diálogo) ──────────────────────────
+  tom_hub: {
+    id: 'tom_hub',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: 'Tom ajeita o óculos que não precisa. "Pode falar, Aprendiz. Só não me faça perder o tempo do solo. Tempo também tem pedágio."',
+    choices: [
+      {
+        text: '"Por que odeiam Telefonistas?"',
+        nextNodeId: 'tom_odio',
+      },
+      {
+        text: '"Você conheceu o Nilo?"',
+        nextNodeId: 'tom_nilo',
+      },
+      {
+        text: '"Cinco fichas é abuso."',
+        nextNodeId: 'tom_preco',
+      },
+      {
+        text: 'Encerrar papo — voltar às opções do pedágio',
+        nextNodeId: 'aproximar_pedagio',
+      },
+    ],
+  },
+
+  tom_odio: {
+    id: 'tom_odio',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: '"Odeio é palavra feia. A gente prefere… regular. Vocês ligam de graça pro pânico, pro boato, pra esperança. Esperança sem taxa desvaloriza o meu freestyle. A Bossa Nova vende civilidade. Vocês distribuem sinal. Concorrência desleal, irmão."',
+    choices: [
+      {
+        text: 'Voltar ao menu do Tom',
+        nextNodeId: 'tom_hub',
+      },
+      {
+        text: 'Ir às opções de pagamento/luta',
+        nextNodeId: 'aproximar_pedagio',
+      },
+    ],
+  },
+
+  tom_nilo: {
+    id: 'tom_nilo',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: '"Nilo me devia uma música e uma desculpa. Passou por aqui com cara de quem ia consertar o Brasil com alicate. Eu cobrei pedágio. Ele pagou… em sermão. Depois sumiu. Agora você aparece com a mesma cara. Déjà-vu com juros."',
+    choices: [
+      {
+        text: '"O que ele devia de verdade?"',
+        nextNodeId: 'tom_divida_nilo',
+      },
+      {
+        text: 'Voltar ao menu',
+        nextNodeId: 'tom_hub',
+      },
+    ],
+  },
+
+  tom_preco: {
+    id: 'tom_preco',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: '"Abuso é silêncio de graça. Cinco fichas é promoção de fim de mundo. Aceito sucata se brilhar. Aceito Guaraná se gelar a alma. Aceito porrada se você insistir em ser romance." Ele bate no cano no ritmo do rádio. "Daí o reverb fica… pessoal."',
+    choices: [
+      {
+        text: 'Voltar às opções do pedágio',
+        nextNodeId: 'aproximar_pedagio',
+        effects: { stress: 2 },
+      },
+    ],
+  },
+
+  tom_divida_nilo: {
+    id: 'tom_divida_nilo',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: 'Tom baixa o tom (e o volume do rádio, milagre). "Ele prometeu não reativar a orla sem avisar a gente. Avisar = pagar. Ele reativava escondido. Cada orelhão online é um pedágio a menos na narrativa da Bossa Nova. Por isso a conta continua aberta. Você herdou a dívida com o ofício. Parabéns."',
+    choices: [
+      {
+        text: 'Seguir pela Esplanada',
+        nextNodeId: 'esplanada_aberta',
+        effects: { stress: 5 },
+      },
+      {
+        text: 'Ficar em silêncio e atravessar',
+        nextNodeId: 'esplanada_aberta',
+      },
+    ],
+  },
+
+  tom_central: {
+    id: 'tom_central',
+    type: 'narrative',
+    speaker: 'Tom do Reverb',
+    text: 'Ele ri sem boca. "Medo? Eu tenho respeito. A Central do Planalto é o último microfone do país. Quem puser a mão lá primeiro manda no bisbilhoteiro coletivo. A Bossa Nova quer o palco. Vocês querem o fio. A plateia… é o Dilúvio." O banquinho range. "Passa. Enquanto a promoção vale."',
+    choices: [
+      {
+        text: 'Atravessar',
+        nextNodeId: 'esplanada_aberta',
+      },
+    ],
   },
 };

@@ -225,3 +225,99 @@
   flex-direction: column;
   gap: 5px;
 }
+
+/* Speaker label (diálogos de NPC) */
+.speaker-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-orange-rust);
+  border: 1px solid var(--color-orange-rust);
+  padding: 2px 8px;
+  margin-bottom: 12px;
+}
+
+/* Intro CRT boot */
+.intro-boot {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 48px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.intro-boot-header {
+  border-bottom: 1px dashed var(--color-phosphor-green);
+  padding-bottom: 16px;
+}
+
+.intro-boot-title {
+  font-size: 1.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(51, 255, 51, 0.35);
+}
+
+.intro-boot-sub {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--color-phosphor-green-dim);
+}
+
+.intro-boot-log {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.intro-boot-line {
+  white-space: pre-wrap;
+}
+
+.intro-cursor {
+  animation: intro-blink 0.9s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes intro-blink {
+  50% { opacity: 0; }
+}
+
+.intro-boot-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.intro-boot-btn {
+  background: transparent;
+  color: var(--color-phosphor-green);
+  border: 1px solid var(--color-phosphor-green);
+  font-family: var(--font-terminal);
+  font-size: 1rem;
+  padding: 12px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.intro-boot-btn:hover {
+  background: rgba(51, 255, 51, 0.12);
+}
+
+.intro-boot-btn--primary {
+  background: var(--color-phosphor-green);
+  color: var(--color-bg-dark);
+}
+
+.intro-boot-btn--primary:hover {
+  background: #5dff5d;
+}

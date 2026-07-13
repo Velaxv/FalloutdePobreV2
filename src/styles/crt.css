@@ -23,6 +23,10 @@
   box-sizing: border-box;
 }
 
+.crt-monitor--full {
+  grid-template-columns: 1fr;
+}
+
 /* Efeito de Cintilação / Flickering */
 .crt-monitor::after {
   content: " ";

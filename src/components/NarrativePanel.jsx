@@ -65,6 +65,7 @@ export default function NarrativePanel() {
 
   return (
     <div className="main-panel">
+      {node.speaker && <div className="speaker-tag">{node.speaker}</div>}
       <div className="dialogue-text">{displayedText}</div>
       <div className="choices-list">
         {textComplete &&

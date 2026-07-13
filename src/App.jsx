@@ -1,5 +1,6 @@
 import React from 'react';
 import CRTScreen from './components/CRTScreen';
+import IntroBoot from './components/IntroBoot';
 import StatGauge from './components/StatGauge';
 import NarrativePanel from './components/NarrativePanel';
 import CombatPanel from './components/CombatPanel';
@@ -8,8 +9,18 @@ import { useGameStore } from './store/useGameStore';
 import { nodes } from './data/nodes';
 
 export default function App() {
-  const { player, currentNodeId } = useGameStore();
+  const introComplete = useGameStore((s) => s.introComplete);
+  const player = useGameStore((s) => s.player);
+  const currentNodeId = useGameStore((s) => s.currentNodeId);
   const node = nodes[currentNodeId];
+
+  if (!introComplete) {
+    return (
+      <CRTScreen fullBleed>
+        <IntroBoot />
+      </CRTScreen>
+    );
+  }
 
   return (
     <CRTScreen>

@@ -35,6 +35,15 @@ const initialFlags = {
   derrotouCapanga: false,
   passouPedagio: false,
   reativouOrelhaoEsplanada: false,
+  // NPCs
+  conheceuDonaLinha: false,
+  trocouSucataLinha: false,
+  ouviuFofocaNilo: false,
+  conheceuIrmaOcupada: false,
+  falouComTom: false,
+  tomOfendido: false,
+  ouviuFitaNiloExtra: false,
+  conheceuGuto: false,
 };
 
 function clampStat(stat, value, player) {
@@ -52,8 +61,11 @@ export const useGameStore = create((set, get) => ({
   player: { ...initialPlayer },
   inventory: [],
   flags: { ...initialFlags },
+  introComplete: false,
   currentNodeId: 'inicio_congresso',
   combatState: null,
+
+  completeIntro: () => set({ introComplete: true }),
 
   meetsRequirements: (req) => {
     if (!req) return true;

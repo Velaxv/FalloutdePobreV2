@@ -42,15 +42,16 @@ npm run preview
 
 **Ano:** 2150 · **Lugar:** Brasília / Dilúvio Verde · **Você:** Aprendiz do Telefonista **Seu Nilo**
 
-1. Acorde nas ruínas do **Congresso** e siga o orelhão (voz/protocolo de Nilo).
-2. Explore a orla: escombros, **cemitério de Opalas**, fileira de cabines.
-3. No **pedágio da Bossa Nova**, escolha: **pagar**, **barganhar** ou **lutar**.
+1. Assista (ou pule) a **intro CRT** do Sistema Nacional de Voz.
+2. Acorde no **Congresso** e siga o orelhão (protocolo de Nilo).
+3. Explore e converse com NPCs:
+   - **Dona Linha** — troca e fofoca na orla
+   - **Irmã Ocupada** — Igreja do Sinal Ocupado
+   - **Guto, o Carcará** — sucateiro no cemitério de Opalas
+   - **Tom do Reverb** — pedágio da Bossa Nova (pagar / barganhar / lutar / falar)
 4. Reative o orelhão da Esplanada e feche o Ato 1 (gancho: Central do Planalto).
-5. Em combate, use posturas:
-   - **Abrigo** — defesa / descansar
-   - **Corpo a corpo** — alto dano, mais risco
-   - **À distância** — alto dano, gasta munição
-6. Consumíveis (Guaraná, charque, água) baixam fome/sede/stress — com tradeoffs.
+5. Combate por posturas: Abrigo · Corpo a corpo · À distância.
+6. Consumíveis baixam fome/sede/stress (com tradeoffs).
 
 ## Estrutura do projeto
 
