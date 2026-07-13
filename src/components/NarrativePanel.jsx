@@ -2,9 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../store/useGameStore';
 import { nodes } from '../data/nodes';
 
+function requirementHint(req, player, inventory, flags) {
+  if (!req) return '';
+  if (req.currency != null && player.currency < req.currency) {
+    return ' (Fichas insuficientes)';
+  }
+  if (req.scrap != null && player.scrap < req.scrap) {
+    return ' (Sucata insuficiente)';
+  }
+  if (req.item && !inventory.some((i) => i.id === req.item && i.quantity > 0)) {
+    return ' (Item necessário)';
+  }
+  if (req.flag && !flags[req.flag]) {
+    return ' (Ainda não)';
+  }
+  if (req.notFlag && flags[req.notFlag]) {
+    return '';
+  }
+  return ' (Indisponível)';
+}
+
 export default function NarrativePanel() {
-  const { currentNodeId, player, changeNode, modifyPlayerStat, addItemToInventory } =
-    useGameStore();
+  const currentNodeId = useGameStore((s) => s.currentNodeId);
+  const player = useGameStore((s) => s.player);
+  const inventory = useGameStore((s) => s.inventory);
+  const flags = useGameStore((s) => s.flags);
+  const choose = useGameStore((s) => s.choose);
+  const meetsRequirements = useGameStore((s) => s.meetsRequirements);
+
   const node = nodes[currentNodeId];
   const [displayedText, setDisplayedText] = useState('');
   const [textComplete, setTextComplete] = useState(false);
@@ -23,75 +48,43 @@ export default function NarrativePanel() {
         clearInterval(interval);
         setTextComplete(true);
       }
-    }, 15);
+    }, 12);
 
     return () => clearInterval(interval);
   }, [currentNodeId, node]);
 
   if (!node || node.type !== 'narrative') return null;
 
-  const checkRequirement = (req) => {
-    if (!req) return true;
-    if (req.currency && player.currency < req.currency) return false;
+  const visibleChoices = (node.choices || []).filter((choice) => {
+    // Esconde opções que exigem notFlag já cumprido (ex.: "voltar se ainda não reativou")
+    if (choice.requirements?.notFlag && flags[choice.requirements.notFlag]) {
+      return false;
+    }
     return true;
-  };
-
-  const applyChoiceEffects = (effects) => {
-    if (!effects) return;
-
-    if (effects.currency) modifyPlayerStat('currency', effects.currency);
-    if (effects.stress) modifyPlayerStat('stress', effects.stress);
-    if (effects.scrap) modifyPlayerStat('scrap', effects.scrap);
-    if (effects.thirst) modifyPlayerStat('thirst', effects.thirst);
-    if (effects.hunger) modifyPlayerStat('hunger', effects.hunger);
-    if (effects.health) modifyPlayerStat('health', effects.health);
-    if (effects.radiation) modifyPlayerStat('radiation', effects.radiation);
-
-    if (effects.hasMachete) {
-      addItemToInventory({
-        id: 'machete',
-        name: 'Machete Enferrujada',
-        quantity: 1,
-        type: 'weapon',
-      });
-    }
-    if (effects.hasGuarana) {
-      addItemToInventory({
-        id: 'guarana_jesus',
-        name: 'Guaraná Jesus',
-        quantity: 1,
-        type: 'consumable',
-        effect: { thirst: -30, stress: -20 },
-      });
-    }
-  };
-
-  const handleChoice = (choice) => {
-    if (!checkRequirement(choice.requirements)) return;
-    applyChoiceEffects(choice.effects);
-    changeNode(choice.nextNodeId);
-  };
+  });
 
   return (
     <div className="main-panel">
       <div className="dialogue-text">{displayedText}</div>
       <div className="choices-list">
         {textComplete &&
-          node.choices.map((choice, i) => {
-            const allowed = checkRequirement(choice.requirements);
+          visibleChoices.map((choice, i) => {
+            const allowed = meetsRequirements(choice.requirements);
             return (
               <button
-                key={i}
+                key={`${choice.nextNodeId}-${i}`}
                 className="choice-button"
                 disabled={!allowed}
-                onClick={() => handleChoice(choice)}
+                onClick={() => choose(choice)}
               >
                 {choice.text}
-                {!allowed ? ' (Fichas insuficientes)' : ''}
+                {!allowed
+                  ? requirementHint(choice.requirements, player, inventory, flags)
+                  : ''}
               </button>
             );
           })}
-        {textComplete && node.choices.length === 0 && (
+        {textComplete && visibleChoices.length === 0 && (
           <p style={{ color: 'var(--color-phosphor-green-dim)', margin: 0 }}>
             — Transmissão encerrada —
           </p>

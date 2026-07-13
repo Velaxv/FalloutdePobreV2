@@ -38,16 +38,19 @@ npm run build
 npm run preview
 ```
 
-## Como jogar (MVP)
+## Como jogar (Ato 1)
 
-1. Comece nas ruínas do **Congresso Nacional** inundado.
-2. Escolha entre atender o **orelhão** (−1 ficha) ou vasculhar um **Opala**.
-3. Enfrente o **Capanga da Bossa Nova** na Esplanada.
-4. Em combate, escolha postura e ação:
-   - **Abrigo (Cover)** — menos dano, ataque fraco; bom com **Descansar**
-   - **Corpo a corpo (Melee)** — alto dano, mais risco
-   - **À distância (Ranged)** — dano alto, consome **munição**
-5. Use o **Guaraná Jesus** no inventário para baixar sede e stress.
+**Ano:** 2150 · **Lugar:** Brasília / Dilúvio Verde · **Você:** Aprendiz do Telefonista **Seu Nilo**
+
+1. Acorde nas ruínas do **Congresso** e siga o orelhão (voz/protocolo de Nilo).
+2. Explore a orla: escombros, **cemitério de Opalas**, fileira de cabines.
+3. No **pedágio da Bossa Nova**, escolha: **pagar**, **barganhar** ou **lutar**.
+4. Reative o orelhão da Esplanada e feche o Ato 1 (gancho: Central do Planalto).
+5. Em combate, use posturas:
+   - **Abrigo** — defesa / descansar
+   - **Corpo a corpo** — alto dano, mais risco
+   - **À distância** — alto dano, gasta munição
+6. Consumíveis (Guaraná, charque, água) baixam fome/sede/stress — com tradeoffs.
 
 ## Estrutura do projeto
 
