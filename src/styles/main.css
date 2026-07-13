@@ -1,4 +1,5 @@
 @import './crt.css';
+@import './components.css';
 
 :root {
   --color-phosphor-green: #33ff33;
